@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Hisab Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+    .container {
+      max-width: 1450px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .topbar, .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
+    }
+    .topbar h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+    }
+    .topbar p, .hint, .footer-note {
+      margin: 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 14px;
+      font-size: 22px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 15px;
+      background: #fff;
+    }
+    input:focus {
+      outline: none;
+      border-color: #374151;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .summary-box {
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(135deg, #f9fafb, #eef2ff);
+      border: 1px solid #e5e7eb;
+    }
+    .summary-box .title {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .summary-box .value {
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary { background: #111827; color: white; }
+    .secondary { background: #6b7280; color: white; }
+    .success { background: #047857; color: white; }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    th {
+      background: #f9fafb;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .saved-card-list {
+      display: grid;
+      gap: 14px;
+    }
+    .saved-row-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: #fafafa;
+    }
+    .saved-row-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .saved-item {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .saved-item-label {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .saved-item-value {
+      font-size: 15px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    #growthChart {
+      margin-top: 16px;
+      width: 100%;
+      height: 320px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1>Agent Hisab Dashboard</h1>
+      <p>Formula: PH (2-10) + DUE + CASH + CARD/SIM - LENT = FINAL AMOUNT</p>
+    </div>
+
+    <div class="card">
+      <h2>Daily Entry Form</h2>
+      <div class="grid">
+        <div>
+          <label for="date">1. DATE & TIME</label>
+          <input type="text" id="date" readonly />
+        </div>
+        <div>
+          <label for="bkashAgent">2. BKASH AGENT</label>
+          <input type="number" id="bkashAgent" placeholder="0" />
+        </div>
+        <div>
+          <label for="nagadAgent">3. NAGAD AGENT</label>
+          <input type="number" id="nagadAgent" placeholder="0" />
+        </div>
+        <div>
+          <label for="rocketAgent">4. ROCKET AGENT</label>
+          <input type="number" id="rocketAgent" placeholder="0" />
+        </div>
+        <div>
+          <label for="bkash3239">5. 3239 (BKASH)</label>
+          <input type="number" id="bkash3239" placeholder="0" />
+        </div>
+        <div>
+          <label for="nagad3239">6. 3239 (NAGAD)</label>
+          <input type="number" id="nagad3239" placeholder="0" />
+        </div>
+        <div>
+          <label for="bkash123">7. 123 (BKASH)</label>
+          <input type="number" id="bkash123" placeholder="0" />
+        </div>
+        <div>
+          <label for="bkash546">8. 546 (BKASH)</label>
+          <input type="number" id="bkash546" placeholder="0" />
+        </div>
+        <div>
+          <label for="bkash8297">9. 8297 (BKASH)</label>
+          <input type="number" id="bkash8297" placeholder="0" />
+        </div>
+        <div>
+          <label for="nagad8297">10. 8297 (NAGAD)</label>
+          <input type="number" id="nagad8297" placeholder="0" />
+        </div>
+        <div>
+          <label for="due">11. DUE</label>
+          <input type="number" id="due" placeholder="0" />
+        </div>
+        <div>
+          <label for="lent">12. LENT</label>
+          <input type="number" id="lent" placeholder="0" />
+        </div>
+        <div>
+          <label for="cash">13. CASH</label>
+          <input type="number" id="cash" placeholder="0" />
+        </div>
+        <div>
+          <label for="cardSim">14. CARD/SIM</label>
+          <input type="number" id="cardSim" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="success" onclick="saveEntry()">Save Entry</button>
+        <button class="secondary" onclick="clearForm()">Clear Form</button>
+      </div>
+      <div class="hint" style="margin-top:8px;">Live dashboard e current entry-r PH, Due, Lent, Cash, Card/Sim, ar Final Amount dekhabe. Prottek row shudhu ekbar edit kora jabe.</div>
+    </div>
+
+    <div class="card">
+      <h2>Live Dashboard</h2>
+      <div class="summary-grid">
+        <div class="summary-box"><div class="title">PH (2-10)</div><div class="value" id="phTotal">0</div></div>
+        <div class="summary-box"><div class="title">Due</div><div class="value" id="dueShow">0</div></div>
+        <div class="summary-box"><div class="title">Lent</div><div class="value" id="lentShow">0</div></div>
+        <div class="summary-box"><div class="title">Cash</div><div class="value" id="cashShow">0</div></div>
+        <div class="summary-box"><div class="title">Cash/Card</div><div class="value" id="cardSimShow">0</div></div>
+        <div class="summary-box"><div class="title">Final Amount</div><div class="value" id="finalTotal">0</div></div>
+        <div class="summary-box"><div class="title">Saved Rows</div><div class="value" id="savedRows">0</div></div>
+      </div>
+      <div class="footer-note" style="margin-top:8px;">Final Amount = PH (2-10) + Due + Cash + Card/Sim - Lent</div>
+    </div>
+
+    <div class="card">
+      <h2>Growth Identification</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Final Amount</th>
+            </tr>
+          </thead>
+          <tbody id="growthTableBody"></tbody>
+        </table>
+      </div>
+      <canvas id="growthChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>Statement</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Date & Time</th>
+              <th>Bkash Agent</th>
+              <th>Nagad Agent</th>
+              <th>Rocket Agent</th>
+              <th>3239 (Bkash)</th>
+              <th>3239 (Nagad)</th>
+              <th>123 (Bkash)</th>
+              <th>546 (Bkash)</th>
+              <th>8297 (Bkash)</th>
+              <th>8297 (Nagad)</th>
+              <th>PH (2-10)</th>
+              <th>Due</th>
+              <th>Lent</th>
+              <th>Cash</th>
+              <th>Card/Sim</th>
+              <th>Final Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="statementTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const phIds = [
+      'bkashAgent', 'nagadAgent', 'rocketAgent', 'bkash3239', 'nagad3239',
+      'bkash123', 'bkash546', 'bkash8297', 'nagad8297'
+    ];
+    const allFieldIds = ['date', ...phIds, 'due', 'lent', 'cash', 'cardSim'];
+
+    let entries = JSON.parse(localStorage.getItem('agentHisabEntries') || '[]');
+    let editingIndex = null;
+
+    function getCurrentLocalDateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    function getNumber(id) {
+      return parseFloat(document.getElementById(id).value) || 0;
+    }
+
+    function calculateLive() {
+      let phTotal = 0;
+      phIds.forEach(id => phTotal += getNumber(id));
+
+      const due = getNumber('due');
+      const lent = getNumber('lent');
+      const cash = getNumber('cash');
+      const cardSim = getNumber('cardSim');
+      const finalAmount = phTotal + due + cash + cardSim - lent;
+
+      document.getElementById('phTotal').textContent = phTotal;
+      document.getElementById('dueShow').textContent = due;
+      document.getElementById('lentShow').textContent = lent;
+      document.getElementById('cashShow').textContent = cash;
+      document.getElementById('cardSimShow').textContent = cardSim;
+      document.getElementById('finalTotal').textContent = finalAmount;
+      document.getElementById('savedRows').textContent = entries.length;
+
+      return { phTotal, due, lent, cash, cardSim, finalAmount };
+    }
+
+    function updateLiveDashboardFromEntry(entry) {
+      if (!entry) {
+        document.getElementById('phTotal').textContent = 0;
+        document.getElementById('dueShow').textContent = 0;
+        document.getElementById('lentShow').textContent = 0;
+        document.getElementById('cashShow').textContent = 0;
+        document.getElementById('cardSimShow').textContent = 0;
+        document.getElementById('finalTotal').textContent = 0;
+        document.getElementById('savedRows').textContent = entries.length;
+        return;
+      }
+      document.getElementById('phTotal').textContent = entry.phTotal || 0;
+      document.getElementById('dueShow').textContent = entry.due || 0;
+      document.getElementById('lentShow').textContent = entry.lent || 0;
+      document.getElementById('cashShow').textContent = entry.cash || 0;
+      document.getElementById('cardSimShow').textContent = entry.cardSim || 0;
+      document.getElementById('finalTotal').textContent = entry.finalAmount || 0;
+      document.getElementById('savedRows').textContent = entries.length;
+    }
+
+    function saveData() {
+      localStorage.setItem('agentHisabEntries', JSON.stringify(entries));
+    }
+
+    function setFormFromEntry(entry) {
+      document.getElementById('date').value = entry.date || getCurrentLocalDateTime();
+      document.getElementById('bkashAgent').value = entry.bkashAgent || '';
+      document.getElementById('nagadAgent').value = entry.nagadAgent || '';
+      document.getElementById('rocketAgent').value = entry.rocketAgent || '';
+      document.getElementById('bkash3239').value = entry.bkash3239 || '';
+      document.getElementById('nagad3239').value = entry.nagad3239 || '';
+      document.getElementById('bkash123').value = entry.bkash123 || '';
+      document.getElementById('bkash546').value = entry.bkash546 || '';
+      document.getElementById('bkash8297').value = entry.bkash8297 || '';
+      document.getElementById('nagad8297').value = entry.nagad8297 || '';
+      document.getElementById('due').value = entry.due || '';
+      document.getElementById('lent').value = entry.lent || '';
+      document.getElementById('cash').value = entry.cash || '';
+      document.getElementById('cardSim').value = entry.cardSim || '';
+      calculateLive();
+    }
+
+    function saveEntry() {
+      const calc = calculateLive();
+      const date = editingIndex !== null && entries[editingIndex] ? entries[editingIndex].date : getCurrentLocalDateTime();
+
+      const rowData = {
+        date,
+        bkashAgent: getNumber('bkashAgent'),
+        nagadAgent: getNumber('nagadAgent'),
+        rocketAgent: getNumber('rocketAgent'),
+        bkash3239: getNumber('bkash3239'),
+        nagad3239: getNumber('nagad3239'),
+        bkash123: getNumber('bkash123'),
+        bkash546: getNumber('bkash546'),
+        bkash8297: getNumber('bkash8297'),
+        nagad8297: getNumber('nagad8297'),
+        phTotal: calc.phTotal,
+        due: calc.due,
+        lent: calc.lent,
+        cash: calc.cash,
+        cardSim: calc.cardSim,
+        finalAmount: calc.finalAmount,
+        edited: false
+      };
+
+      if (editingIndex !== null) {
+        if (entries[editingIndex].edited) {
+          alert('Ei row agei ekbar edit kora hoye geche.');
+          return;
+        }
+        rowData.edited = true;
+        entries[editingIndex] = rowData;
+        editingIndex = null;
+      } else {
+        entries.push(rowData);
+      }
+
+      saveData();
+      renderAll();
+      updateLiveDashboardFromEntry(rowData);
+      clearForm(false);
+    }
+
+    function editEntry(index) {
+      const entry = entries[index];
+      if (entry.edited) {
+        alert('Ei row ekbar edit hoye geche. Ar edit kora jabe na.');
+        return;
+      }
+      editingIndex = index;
+      setFormFromEntry(entry);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderStatementTable() {
+      const statementTableBody = document.getElementById('statementTableBody');
+      statementTableBody.innerHTML = '';
+
+      entries.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${entry.date}</td>
+          <td>${entry.bkashAgent}</td>
+          <td>${entry.nagadAgent}</td>
+          <td>${entry.rocketAgent}</td>
+          <td>${entry.bkash3239}</td>
+          <td>${entry.nagad3239}</td>
+          <td>${entry.bkash123}</td>
+          <td>${entry.bkash546}</td>
+          <td>${entry.bkash8297}</td>
+          <td>${entry.nagad8297}</td>
+          <td>${entry.phTotal}</td>
+          <td>${entry.due}</td>
+          <td>${entry.lent}</td>
+          <td>${entry.cash}</td>
+          <td>${entry.cardSim}</td>
+          <td>${entry.finalAmount}</td>
+          <td><button class="primary" onclick="editEntry(${index})" ${entry.edited ? 'disabled' : ''}>${entry.edited ? 'Edited' : 'Edit'}</button></td>
+        `;
+        statementTableBody.appendChild(row);
+      });
+    }
+
+    function renderGrowthSection() {
+      const growthTableBody = document.getElementById('growthTableBody');
+      growthTableBody.innerHTML = '';
+
+      entries.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.date}</td>
+          <td>${entry.finalAmount}</td>
+        `;
+        growthTableBody.appendChild(row);
+      });
+
+      drawGrowthChart(entries);
+    }
+
+    function drawGrowthChart(data) {
+      const canvas = document.getElementById('growthChart');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const cssWidth = Math.max(700, canvas.clientWidth || 900);
+      const cssHeight = 320;
+
+      canvas.width = cssWidth * dpr;
+      canvas.height = cssHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+      const padding = { top: 20, right: 20, bottom: 60, left: 60 };
+      const chartWidth = cssWidth - padding.left - padding.right;
+      const chartHeight = cssHeight - padding.top - padding.bottom;
+
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, padding.top + chartHeight);
+      ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
+      ctx.stroke();
+
+      if (!data.length) {
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '14px Arial';
+        ctx.fillText('No data yet for growth chart.', padding.left + 20, padding.top + 40);
+        return;
+      }
+
+      const points = data.map((entry, index) => ({
+        index,
+        label: entry.date.split(' ')[0],
+        value: Number(entry.finalAmount) || 0
+      }));
+
+      let minY = Math.min(...points.map(p => p.value));
+      let maxY = Math.max(...points.map(p => p.value));
+      if (minY === maxY) {
+        minY -= 1;
+        maxY += 1;
+      }
+      const rangeY = maxY - minY;
+
+      for (let i = 0; i < 5; i++) {
+        const yVal = minY + (rangeY / 4) * i;
+        const y = padding.top + chartHeight - (chartHeight / 4) * i;
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(padding.left + chartWidth, y);
+        ctx.stroke();
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '12px Arial';
+        ctx.fillText(yVal.toFixed(0), 10, y + 4);
+      }
+
+      const getX = i => points.length === 1 ? padding.left + chartWidth / 2 : padding.left + (chartWidth / (points.length - 1)) * i;
+      const getY = v => padding.top + chartHeight - ((v - minY) / rangeY) * chartHeight;
+
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = getX(i);
+        const y = getY(p.value);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      points.forEach((p, i) => {
+        const x = getX(i);
+        const y = getY(p.value);
+        ctx.fillStyle = '#111827';
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#374151';
+        ctx.font = '12px Arial';
+        ctx.fillText(String(p.value), x - 10, y - 10);
+
+        ctx.save();
+        ctx.translate(x, padding.top + chartHeight + 18);
+        ctx.rotate(-0.45);
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '11px Arial';
+        ctx.fillText(p.label, 0, 0);
+        ctx.restore();
+      });
+    }
+
+    function clearForm(resetDashboard = true) {
+      allFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (id === 'date') el.value = getCurrentLocalDateTime();
+        else el.value = '';
+      });
+      editingIndex = null;
+      if (resetDashboard) {
+        const latestSaved = entries.length ? entries[entries.length - 1] : null;
+        updateLiveDashboardFromEntry(latestSaved);
+      }
+    }
+
+    function renderAll() {
+      renderStatementTable();
+      renderGrowthSection();
+      const latestEntry = entries.length ? entries[entries.length - 1] : null;
+      updateLiveDashboardFromEntry(latestEntry);
+    }
+
+    allFieldIds.forEach(id => {
+      document.getElementById(id).addEventListener('input', calculateLive);
+    });
+
+    document.getElementById('date').value = getCurrentLocalDateTime();
+    renderAll();
+    const latestEntry = entries.length ? entries[entries.length - 1] : null;
+    if (latestEntry) {
+      updateLiveDashboardFromEntry(latestEntry);
+    } else {
+      calculateLive();
+    }
+    window.addEventListener('resize', () => drawGrowthChart(entries));
+  </script>
+</body>
+</html>
